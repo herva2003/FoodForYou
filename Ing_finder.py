@@ -7,8 +7,13 @@ import ast
 import logging
 import os
 
-# Set up logging
-logging.basicConfig(level=logging.INFO)
+
+def setup_logging():
+    logging.basicConfig(level=logging.INFO)
+
+
+if __name__ == "__main__":
+    setup_logging()
 
 # Load a pre-existing spaCy model
 nlp = spacy.load('en_core_web_sm')
@@ -34,36 +39,34 @@ def prepare_data(df):
     TRAIN_DATA = []
     for index, row in df.iterrows():
         entities = []
+        ingredients_text = row['ingredients'].lower()
         for ing in ast.literal_eval(row['NER']):
-            # Split the ingredients string into individual ingredients
-            ingredients = row['ingredients'].replace('",', ', ').split(', ')
-            for ingredient in ingredients:
-                # Check if the current ingredient contains the target ingredient
-                if ing.lower() in ingredient.lower():
-                    # Calculate the start and end index of the ingredient in the current ingredient
-                    start_index = ingredient.lower().find(ing.lower())
-                    end_index = start_index + len(ing)
-                    # Adjust the start and end index to the ingredients string
-                    start_index += row['ingredients'].lower().find(ingredient.lower())
-                    end_index += row['ingredients'].lower().find(ingredient.lower())
-                    entities.append((start_index, end_index, 'INGREDIENT'))
-        if entities:
-            # Remove overlapping entities
-            entities = remove_overlapping_entities(entities)
-            TRAIN_DATA.append((row['ingredients'], {'entities': entities}))
+            ing_lower = ing.lower()
+            start_index = ingredients_text.find(ing_lower)
+            while start_index != -1:
+                end_index = start_index + len(ing_lower)
+                entities.append((start_index, end_index, 'INGREDIENT'))
+                start_index = ingredients_text.find(ing_lower, start_index + 1)
+        entities = remove_overlapping_entities(entities)
+        TRAIN_DATA.append((row['ingredients'], {'entities': entities}))
 
-        # Check alignment of entities
-        for text, annotations in TRAIN_DATA:
-            doc = nlp.make_doc(text)
-            tags = spacy.training.offsets_to_biluo_tags(doc, annotations['entities'])
-            if '-' in tags:  # Misaligned entity found
-                logging.error(f"Misaligned entity in text: {text}, entities: {annotations['entities']}")
-                TRAIN_DATA.remove((text, annotations))  # Remove misaligned data from training data
+    # Filter out misaligned entities
+    TRAIN_DATA = [data for data in TRAIN_DATA if not misaligned_entities(data, nlp)]
     return TRAIN_DATA
 
 
-def train_ner(nlp, TRAIN_DATA):
-    for itn in range(10):  # Number of training iterations
+def misaligned_entities(data, nlp):
+    text, annotations = data
+    doc = nlp.make_doc(text)
+    tags = spacy.training.offsets_to_biluo_tags(doc, annotations['entities'])
+    if '-' in tags:
+        logging.error(f"Misaligned entity in text: {text}, entities: {annotations['entities']}")
+        return True
+    return False
+
+
+def train_ner(nlp, TRAIN_DATA, num_iterations=2):
+    for itn in range(num_iterations):
         random.shuffle(TRAIN_DATA)
         losses = {}
         batches = minibatch(TRAIN_DATA, size=compounding(4., 32., 1.001))
@@ -77,23 +80,18 @@ def train_ner(nlp, TRAIN_DATA):
 
 # Read the CSV file using a context manager
 try:
-    with open('ner.csv', 'r') as file:
-        df = pd.read_csv(file)
+    df = pd.read_csv('ner.csv')
 except FileNotFoundError:
     logging.error('File ner.csv not found.')
     exit()
 
 TRAIN_DATA = prepare_data(df)
-if TRAIN_DATA is None:  # If misaligned entity found, stop the script
-    exit()
 
 # Disable other pipes to only train NER
 with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
     train_ner(nlp, TRAIN_DATA)
 
 # Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner')
-if not os.path.exists(model_path):
-    os.makedirs(model_path)
+model_path = os.path.join('models', 'ingredient_ner_2')
+os.makedirs(model_path, exist_ok=True)
 nlp.to_disk(model_path)
-logging.info(f'Model saved to {model_path}')

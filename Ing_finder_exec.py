@@ -5,8 +5,8 @@ model_path = 'models/ingredient_ner'
 nlp = spacy.load(model_path)
 
 # New text to process
-text_to_process = ("1 c. firmly packed brown sugar, 1/2 c. evaporated milk, 1/2 tsp. vanilla, 1/2 c. broken nuts (pecans), "
-                   "2 Tbsp. butter or margarine, 3 1/2 c. bite size shredded rice biscuits")
+text_to_process = ("brown sugar, milk, vanilla, nuts (pecans), "
+                   "butter, rice biscuits")
 
 # Process the text
 doc = nlp(text_to_process)
