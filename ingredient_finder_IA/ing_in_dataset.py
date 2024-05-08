@@ -14,7 +14,7 @@ def obter_dados_ingrediente(data, nome_ingrediente):
 
 
 # Carregar os dados
-data = carregar_dados_arquivo('ingredientes.json')
+data = carregar_dados_arquivo('../ingredientes.json')
 
 # Obter os dados de "salt"
 dados_salt = obter_dados_ingrediente(data, "cheese cottage crmd wfruit")

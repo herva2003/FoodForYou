@@ -1,9 +1,9 @@
 import spacy
 from fuzzywuzzy import fuzz
-from MongoDb import ingredientes
+from mongoDB.MongoDb import ingredientes
 
 # Load the trained model
-model_path = 'models/ingredient_ner'
+model_path = '../models/ingredient_ner'
 nlp = spacy.load(model_path)
 
 # New text to process

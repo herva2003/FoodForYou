@@ -80,7 +80,7 @@ def train_ner(nlp, TRAIN_DATA, num_iterations=2):
 
 # Read the CSV file using a context manager
 try:
-    df = pd.read_csv('ner.csv')
+    df = pd.read_csv('../ner.csv')
 except FileNotFoundError:
     logging.error('File ner.csv not found.')
     exit()
@@ -93,7 +93,7 @@ with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
     train_ner(nlp, TRAIN_DATA)
 
 # Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner')
+model_path = os.path.join('../models', 'ingredient_ner')
 if not os.path.exists(model_path):
     os.makedirs(model_path)
 nlp.to_disk(model_path)

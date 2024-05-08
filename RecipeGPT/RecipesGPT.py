@@ -1,5 +1,5 @@
 from senha import API_KEY
-from MongoDb import *
+from mongoDB.MongoDb import *
 from openai import OpenAI
 from bson import ObjectId
 import json
