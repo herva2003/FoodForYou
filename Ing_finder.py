@@ -87,84 +87,13 @@ except FileNotFoundError:
 
 TRAIN_DATA = prepare_data(df)
 
-# Disable other pipes to only train NER
-with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
-    train_ner(nlp, TRAIN_DATA)
-
-# Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner_2')
-os.makedirs(model_path, exist_ok=True)
-nlp.to_disk(model_path)
-
-
-def train_ner(nlp, TRAIN_DATA):
-    for itn in range(5):  # Number of training iterations
-        random.shuffle(TRAIN_DATA)
-        losses = {}
-        batches = minibatch(TRAIN_DATA, size=compounding(4., 32., 1.001))
-        for batch in batches:
-            for text, annotations in batch:
-                doc = nlp.make_doc(text)
-                example = Example.from_dict(doc, annotations)
-                nlp.update([example], drop=0.5, losses=losses)
-        logging.info(f"Losses at iteration {itn}: {losses}")
-
-
-# Read the CSV file using a context manager
-try:
-    with open('ner.csv', 'r') as file:
-        df = pd.read_csv(file)
-except FileNotFoundError:
-    logging.error('File ner.csv not found.')
-    exit()
-
-TRAIN_DATA = prepare_data(df)
-if TRAIN_DATA is None:  # If misaligned entity found, stop the script
-    exit()
 
 # Disable other pipes to only train NER
 with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
     train_ner(nlp, TRAIN_DATA)
 
 # Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner_2')
-if not os.path.exists(model_path):
-    os.makedirs(model_path)
-nlp.to_disk(model_path)
-logging.info(f'Model saved to {model_path}')
-
-
-def train_ner(nlp, TRAIN_DATA):
-    for itn in range(5):  # Number of training iterations
-        random.shuffle(TRAIN_DATA)
-        losses = {}
-        batches = minibatch(TRAIN_DATA, size=compounding(4., 32., 1.001))
-        for batch in batches:
-            for text, annotations in batch:
-                doc = nlp.make_doc(text)
-                example = Example.from_dict(doc, annotations)
-                nlp.update([example], drop=0.5, losses=losses)
-        logging.info(f"Losses at iteration {itn}: {losses}")
-
-
-# Read the CSV file using a context manager
-try:
-    with open('ner.csv', 'r') as file:
-        df = pd.read_csv(file)
-except FileNotFoundError:
-    logging.error('File ner.csv not found.')
-    exit()
-
-TRAIN_DATA = prepare_data(df)
-if TRAIN_DATA is None:  # If misaligned entity found, stop the script
-    exit()
-
-# Disable other pipes to only train NER
-with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
-    train_ner(nlp, TRAIN_DATA)
-
-# Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner_2')
+model_path = os.path.join('models', 'ingredient_ner')
 if not os.path.exists(model_path):
     os.makedirs(model_path)
 nlp.to_disk(model_path)
@@ -172,76 +101,13 @@ logging.info(f'Model saved to {model_path}')
 
 
 
-def train_ner(nlp, TRAIN_DATA):
-    for itn in range(5):  # Number of training iterations
-        random.shuffle(TRAIN_DATA)
-        losses = {}
-        batches = minibatch(TRAIN_DATA, size=compounding(4., 32., 1.001))
-        for batch in batches:
-            for text, annotations in batch:
-                doc = nlp.make_doc(text)
-                example = Example.from_dict(doc, annotations)
-                nlp.update([example], drop=0.5, losses=losses)
-        logging.info(f"Losses at iteration {itn}: {losses}")
-
-
-# Read the CSV file using a context manager
-try:
-    with open('ner.csv', 'r') as file:
-        df = pd.read_csv(file)
-except FileNotFoundError:
-    logging.error('File ner.csv not found.')
-    exit()
-
-TRAIN_DATA = prepare_data(df)
-if TRAIN_DATA is None:  # If misaligned entity found, stop the script
-    exit()
-
-# Disable other pipes to only train NER
-with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
-    train_ner(nlp, TRAIN_DATA)
-
-# Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner_2')
-if not os.path.exists(model_path):
-    os.makedirs(model_path)
-nlp.to_disk(model_path)
-logging.info(f'Model saved to {model_path}')
 
 
 
-def train_ner(nlp, TRAIN_DATA):
-    for itn in range(5):  # Number of training iterations
-        random.shuffle(TRAIN_DATA)
-        losses = {}
-        batches = minibatch(TRAIN_DATA, size=compounding(4., 32., 1.001))
-        for batch in batches:
-            for text, annotations in batch:
-                doc = nlp.make_doc(text)
-                example = Example.from_dict(doc, annotations)
-                nlp.update([example], drop=0.5, losses=losses)
-        logging.info(f"Losses at iteration {itn}: {losses}")
 
 
-# Read the CSV file using a context manager
-try:
-    with open('ner.csv', 'r') as file:
-        df = pd.read_csv(file)
-except FileNotFoundError:
-    logging.error('File ner.csv not found.')
-    exit()
 
-TRAIN_DATA = prepare_data(df)
-if TRAIN_DATA is None:  # If misaligned entity found, stop the script
-    exit()
 
-# Disable other pipes to only train NER
-with nlp.disable_pipes(*[pipe for pipe in nlp.pipe_names if pipe != 'ner']):
-    train_ner(nlp, TRAIN_DATA)
 
-# Save the model to disk
-model_path = os.path.join('models', 'ingredient_ner_2')
-if not os.path.exists(model_path):
-    os.makedirs(model_path)
-nlp.to_disk(model_path)
-logging.info(f'Model saved to {model_path}')
+
+
