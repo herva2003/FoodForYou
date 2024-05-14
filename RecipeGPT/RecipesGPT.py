@@ -13,12 +13,21 @@ CORS(app)
 API_KEY = API_KEY
 client_openai = OpenAI(api_key=API_KEY)
 
-# ---------------- MUDAR ISSO --------------- #
+# ------ DADOS PARA RECEBER DO SERVIDOR ----- #
+# ID DO USUARIO
 user_id = ObjectId('6640e3f34abafb15341e6b03')
+
+# TIPO REFEIÇÃO
+tipo_refeicao = "Sobremesa"
+
+# OBSERVAÇÕES
+observacao = "Algo quente"
 # ------------------------------------------- #
 
 user_data = users.find_one({'_id': user_id})
+
 ingredientes_ids = user_data.get('ingredients', [])
+restricoes_alim = user_data.get('restricoes_alim', [])
 
 # Buscar os ingredientes pelo ID
 ingredientes_usuario = [ingredientes.find_one({'_id': ObjectId(id)}) for id in ingredientes_ids]
@@ -29,21 +38,24 @@ def get_recipes():
     messages = [
         {
             "role": "system",
-            "content": "Você é um assistente de culinária profissional, que cria receitas apenas com os ingredientes "
-                       "fornecidos. É PROIBIDO usar algum outro ingrediente que não foi fornecido. "
-                       "Não é necessário utilizar todos os ingredientes, use apenas o necessário para uma receita boa."
+            "content": "Você é um assistente de culinária profissional. Crie receitas usando apenas os ingredientes fornecidos. "
+                       "Não adicione ingredientes extras. Não é obrigatório usar todos os ingredientes."
         },
         {
             "role": "user",
-            "content": f"Por favor, crie 3 receitas utilizando apenas os seguintes ingredientes: {ingredientes_usuario}. "
-                       f"Escreva as receitas em inglês e as apresente em formato JSON. Cada receita deve ser um objeto JSON separado, "
-                       f"e todos os objetos de receita devem ser agrupados em um objeto JSON maior chamado 'recipes'. "
-                       f"Cada objeto de receita deve ter os seguintes campos: 'nome_receita', 'ingredients', 'ingredients_quantity', "
-                       f"'modo_preparo', 'tempo_preparo'. Todos os campos devem ser arrays. "
-                       f"Não inclua comentários no JSON. "
-                       f"Os ingredientes são sempre fornecidos em quantidades de 100 gramas. Portanto, no campo 'ingredients_quantity', "
-                       f"retorne a quantidade necessária como um número inteiro ou float. "
-                       f"O campo 'ingredients' deve conter o nome exato do ingrediente fornecido, sem alterações."
+            "content": (
+                "Crie 3 receitas em inglês, considerando as seguintes informações:\n"
+                f"- Ingredientes disponíveis: {ingredientes_usuario}\n"
+                f"- Restrições alimentares: {restricoes_alim}\n"
+                f"- Tipo de refeição: {tipo_refeicao}\n"
+                f"- Observações: {observacao}\n"
+                "Apresente as receitas em formato JSON, sem comentários. Agrupe os objetos JSON de cada receita "
+                "em um objeto maior chamado 'recipes'. Cada objeto de receita deve conter os campos: "
+                "'nome_receita', 'ingredients', 'ingredients_quantity', 'modo_preparo', 'tempo_preparo', "
+                "todos como arrays. Os ingredientes devem ser listados com o nome exato fornecido e as quantidades "
+                "devem ser especificadas em números inteiros ou decimais, representando a quantidade em gramas, "
+                "partindo de uma base de 100 gramas para cada ingrediente."
+            )
         }
     ]
 
