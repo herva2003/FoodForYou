@@ -14,11 +14,11 @@ API_KEY = API_KEY
 client_openai = OpenAI(api_key=API_KEY)
 
 # ---------------- MUDAR ISSO --------------- #
-user_id = ObjectId('66301a37bf601725aecf353b')
+user_id = ObjectId('6640e3f34abafb15341e6b03')
 # ------------------------------------------- #
 
 user_data = users.find_one({'_id': user_id})
-ingredientes_ids = user_data.get('ingredientes', [])
+ingredientes_ids = user_data.get('ingredients', [])
 
 # Buscar os ingredientes pelo ID
 ingredientes_usuario = [ingredientes.find_one({'_id': ObjectId(id)}) for id in ingredientes_ids]
@@ -27,16 +27,24 @@ ingredientes_usuario = [ingredientes.find_one({'_id': ObjectId(id)}) for id in i
 @app.route('/')
 def get_recipes():
     messages = [
-        {"role": "system",
-         "content": "Você é um assistente de culinária profissional, que cria receitas apenas com os "
-                    "ingredientes que você recebe, mas você não precisa utilizar todos os ingredientes "
-                    "que você recebe, use apenas o necessário para que a receita fique gostosa."},
-        {"role": "user",
-         "content": f"Eu tenho apenas estes ingredientes: {ingredientes_usuario}, "
-                    f"você É PROIBIDO de usar algum outro ingrediente que eu não possua. "
-                    f"Coloque a receita em um json que possua os seguintes campos, sendo que eles são arrays: "
-                    f"nome_receita, ingredientes, ingredientes_quantidade, modo_preparo, tempo_preparo"
-                    f"ingredientes_quantidade deve ser retornado sempre em gramas e numero inteiro ou float"}
+        {
+            "role": "system",
+            "content": "Você é um assistente de culinária profissional, que cria receitas apenas com os ingredientes "
+                       "fornecidos. É PROIBIDO usar algum outro ingrediente que não foi fornecido. "
+                       "Não é necessário utilizar todos os ingredientes, use apenas o necessário para uma receita boa."
+        },
+        {
+            "role": "user",
+            "content": f"Por favor, crie 3 receitas utilizando apenas os seguintes ingredientes: {ingredientes_usuario}. "
+                       f"Escreva as receitas em inglês e as apresente em formato JSON. Cada receita deve ser um objeto JSON separado, "
+                       f"e todos os objetos de receita devem ser agrupados em um objeto JSON maior chamado 'recipes'. "
+                       f"Cada objeto de receita deve ter os seguintes campos: 'nome_receita', 'ingredients', 'ingredients_quantity', "
+                       f"'modo_preparo', 'tempo_preparo'. Todos os campos devem ser arrays. "
+                       f"Não inclua comentários no JSON. "
+                       f"Os ingredientes são sempre fornecidos em quantidades de 100 gramas. Portanto, no campo 'ingredients_quantity', "
+                       f"retorne a quantidade necessária como um número inteiro ou float. "
+                       f"O campo 'ingredients' deve conter o nome exato do ingrediente fornecido, sem alterações."
+        }
     ]
 
     response = client_openai.chat.completions.create(
@@ -51,21 +59,23 @@ def get_recipes():
 
     resultado_chat = json.loads(resultado_chat_str)
 
-    ingredientes_nomes = resultado_chat['ingredientes']
-    ingredientes_quantidades = resultado_chat['ingredientes_quantidade']
+    respostas = []
+    for recipe in resultado_chat['recipes']:
+        ingredientes_nomes = recipe['ingredients']
+        ingredientes_quantidades = recipe['ingredients_quantity']
 
-    ingredientes_list = [ingredientes.find_one({'Descrip': nome_ingrediente}) for nome_ingrediente in ingredientes_nomes]
+        ingredientes_list = [ingredientes.find_one({'Descrip': nome_ingrediente}) for nome_ingrediente in
+                             ingredientes_nomes]
 
-    valores_nutricionais = calcular_valores_nutricionais(ingredientes_list, ingredientes_quantidades)
+        valores_nutricionais = calcular_valores_nutricionais(ingredientes_list, ingredientes_quantidades)
 
-    print(valores_nutricionais)
+        resposta = {
+            'receita': recipe,
+            'valores_nutricionais': valores_nutricionais
+        }
+        respostas.append(resposta)
 
-    resposta = {
-        'receita': resultado_chat,
-        'valores_nutricionais': valores_nutricionais
-    }
-
-    return jsonify(resposta)
+    return jsonify(respostas)
 
 
 def calcular_valores_nutricionais(ingredientes, quantidades):
