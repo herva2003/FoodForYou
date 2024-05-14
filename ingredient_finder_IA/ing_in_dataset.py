@@ -17,7 +17,7 @@ def obter_dados_ingrediente(data, nome_ingrediente):
 data = carregar_dados_arquivo('../ingredientes.json')
 
 # Obter os dados de "salt"
-dados_salt = obter_dados_ingrediente(data, "water")
+dados_salt = obter_dados_ingrediente(data, "Ham and cheese spread")
 
 if dados_salt is not None:
     print("Dados de 'salt' em ingredientes.json:")
