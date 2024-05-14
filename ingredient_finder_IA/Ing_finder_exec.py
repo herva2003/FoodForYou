@@ -5,7 +5,6 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 from bson import ObjectId
 
-
 app = Flask(__name__)
 CORS(app, resources={r"/process_text": {"origins": "*"}})
 CORS(app, resources={r"/send_quantities": {"origins": "*"}})
