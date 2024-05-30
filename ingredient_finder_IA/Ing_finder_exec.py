@@ -112,7 +112,7 @@ def send_quantities():
     # Calcula os valores nutricionais totais com base nas quantidades recebidas
     valores_nutricionais = calcular_valores_nutricionais(quantities)
 
-    return jsonify({'message': 'Quantities received successfully', 'nutritional_values': valores_nutricionais})
+    return jsonify({'nutritional_values': valores_nutricionais})
 
 
 if __name__ == '__main__':

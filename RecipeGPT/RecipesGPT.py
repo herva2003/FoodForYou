@@ -15,7 +15,7 @@ client_openai = OpenAI(api_key=API_KEY)
 
 # ------ DADOS PARA RECEBER DO SERVIDOR ----- #
 # ID DO USUARIO
-user_id = ObjectId('6640e3f34abafb15341e6b03')
+user_id = ObjectId('6654e20af9b8567d917ad516')
 
 # TIPO REFEIÇÃO
 tipo_refeicao = "Sobremesa"
