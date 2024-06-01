@@ -17,6 +17,7 @@ CORS(app, resources={r"/send_quantities": {"origins": "*"}})
 model_path = '../models/ingredient_ner'
 nlp = spacy.load(model_path)
 
+
 @app.route('/process_text', methods=['POST'])
 def process_text():
     """
@@ -122,6 +123,7 @@ def process_text():
     # Retorna as informações dos ingredientes em formato JSON
     return jsonify(results)
 
+
 @app.route('/send_quantities', methods=['POST'])
 def send_quantities():
     """
@@ -170,6 +172,7 @@ def send_quantities():
 
     # Retorna os valores nutricionais totais em formato JSON
     return jsonify({'nutritional_values': valores_nutricionais})
+
 
 if __name__ == '__main__':
     # Inicia a aplicação Flask

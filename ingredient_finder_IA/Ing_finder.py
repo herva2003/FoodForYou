@@ -7,12 +7,14 @@ import ast
 import logging
 import os
 
+
 # Função para configurar o sistema de logging
 def setup_logging():
     """
     Configura o sistema de logging para o nível INFO.
     """
     logging.basicConfig(level=logging.INFO)
+
 
 # Verificação se o script está sendo executado diretamente
 if __name__ == "__main__":
@@ -26,6 +28,7 @@ if 'INGREDIENT' not in nlp.pipe_labels['ner']:
     # Adiciona o rótulo 'INGREDIENT' ao componente NER (Named Entity Recognition) do modelo
     ner = nlp.get_pipe('ner')
     ner.add_label('INGREDIENT')
+
 
 # Função para remover entidades sobrepostas
 def remove_overlapping_entities(entities):
@@ -48,6 +51,7 @@ def remove_overlapping_entities(entities):
             non_overlapping_entities.append(entity)
             last_end_index = entity[1]  # Atualiza o índice final da última entidade adicionada
     return non_overlapping_entities
+
 
 # Função para preparar os dados de treinamento a partir de um DataFrame
 def prepare_data(df):
@@ -81,6 +85,7 @@ def prepare_data(df):
     TRAIN_DATA = [data for data in TRAIN_DATA if not misaligned_entities(data, nlp)]
     return TRAIN_DATA
 
+
 # Função para verificar se há entidades desalinhadas nos dados de treinamento
 def misaligned_entities(data, nlp):
     """
@@ -101,6 +106,7 @@ def misaligned_entities(data, nlp):
         return True
     return False
 
+
 # Função para treinar o modelo NER
 def train_ner(nlp, TRAIN_DATA, num_iterations=2):
     """
@@ -119,11 +125,13 @@ def train_ner(nlp, TRAIN_DATA, num_iterations=2):
         for batch in batches:
             for text, annotations in batch:
                 doc = nlp.make_doc(text)  # Cria um documento spaCy a partir do texto
-                example = Example.from_dict(doc, annotations)  # Cria um exemplo de treinamento a partir do documento e das anotações
+                example = Example.from_dict(doc,
+                                            annotations)  # Cria um exemplo de treinamento a partir do documento e das anotações
                 # Atualiza o modelo com os exemplos de treinamento
                 nlp.update([example], drop=0.5, losses=losses)
         # Registra as perdas a cada iteração
         logging.info(f"Losses at iteration {itn}: {losses}")
+
 
 # Lê o arquivo CSV usando um gerenciador de contexto
 try:
