@@ -18,10 +18,10 @@ client_openai = OpenAI(api_key=API_KEY)
 user_id = ObjectId('6654e20af9b8567d917ad516')
 
 # TIPO REFEIÇÃO
-tipo_refeicao = "Sobremesa"
+tipo_refeicao = ""
 
 # OBSERVAÇÕES
-observacao = "Algo quente"
+observacao = ""
 # ------------------------------------------- #
 
 user_data = users.find_one({'_id': user_id})
@@ -44,7 +44,7 @@ def get_recipes():
         {
             "role": "user",
             "content": (
-                "Crie 3 receitas em inglês, considerando as seguintes informações:\n"
+                "Crie apenas 1 receita em inglês, considerando as seguintes informações:\n"
                 f"- Ingredientes disponíveis: {ingredientes_usuario}\n"
                 f"- Restrições alimentares: {restricoes_alim}\n"
                 f"- Tipo de refeição: {tipo_refeicao}\n"
