@@ -34,6 +34,7 @@ def process_text():
                        .replace('and', ' 1 Tbsp ')
                        .replace('chopped', ' 1 Tbsp ')
                        .replace('in', ' 1 Tbsp ')
+                       .replace('the', ' 1 Tbsp ')
                        )
 
     # Processa o texto usando o modelo NER do spaCy para identificar entidades
@@ -44,7 +45,11 @@ def process_text():
 
     # Itera sobre as entidades encontradas no texto processado
     for ent in doc.ents:
-        ing_found.add(ent.text)  # Adiciona o texto da entidade ao conjunto de ingredientes encontrados
+        # Adiciona o texto da entidade ao conjunto de ingredientes encontrados
+        ing_found.add(ent.text)
+
+        print(ent)
+        print(ing_found)
 
     def encontrar_ingrediente(data, nome_ingrediente):
         """

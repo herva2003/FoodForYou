@@ -23,6 +23,12 @@ if __name__ == "__main__":
 # Carrega um modelo pré-existente do spaCy (neste caso, o modelo em inglês)
 nlp = spacy.load('en_core_web_sm')
 
+'''
+O modelo en_core_web_sm é um dos modelos de processamento de linguagem natural (NLP) fornecidos pelo spaCy.
+Este modelo é adequado para tarefas de processamento de texto em inglês, como análise de partes do discurso, 
+análise de dependências, reconhecimento de entidades nomeadas e lematização.
+'''
+
 # Verifica se 'INGREDIENT' é um tipo de entidade reconhecido no modelo carregado
 if 'INGREDIENT' not in nlp.pipe_labels['ner']:
     # Adiciona o rótulo 'INGREDIENT' ao componente NER (Named Entity Recognition) do modelo
@@ -51,6 +57,15 @@ def remove_overlapping_entities(entities):
             non_overlapping_entities.append(entity)
             last_end_index = entity[1]  # Atualiza o índice final da última entidade adicionada
     return non_overlapping_entities
+
+
+'''
+Exemplo de remoção: 
+
+Em overlapping: [(15, 20, 'INGREDIENT'), (19, 24, 'INGREDIENT')]
+Aqui apenas a entidade que está sobrepondo a outra é removida nesse caso seria: (19, 24, 'INGREDIENT')]
+Pois a primeira termina em 20 e a segunda começa em 19
+'''
 
 
 # Função para preparar os dados de treinamento a partir de um DataFrame
@@ -86,6 +101,16 @@ def prepare_data(df):
     return TRAIN_DATA
 
 
+'''
+    A função prepare_data busca cada item da lista NER dentro do texto dos ingredientes, e então determina as posições 
+de início (start_index) e fim (end_index) de cada ocorrência encontrada. Esses índices são usados para criar anotações 
+de entidades, marcando-as como INGREDIENT.
+
+    As etapas de remoção de sobreposições e filtragem de desalinhamentos ajudam a garantir que os dados de treinamento
+sejam adequados para treinar um modelo de NER.
+'''
+
+
 # Função para verificar se há entidades desalinhadas nos dados de treinamento
 def misaligned_entities(data, nlp):
     """
@@ -107,6 +132,14 @@ def misaligned_entities(data, nlp):
     return False
 
 
+'''
+Exemplo de remoção: 
+
+Em misaligned: [(15, 16, 'INGREDIENT')] - para o ingrediente maçã
+Aqui, a entidade está é removida pois o intervalo (15, 16) não cobre todo o nome "maçã", apenas a letra "m".
+'''
+
+
 # Função para treinar o modelo NER
 def train_ner(nlp, TRAIN_DATA, num_iterations=2):
     """
@@ -125,8 +158,7 @@ def train_ner(nlp, TRAIN_DATA, num_iterations=2):
         for batch in batches:
             for text, annotations in batch:
                 doc = nlp.make_doc(text)  # Cria um documento spaCy a partir do texto
-                example = Example.from_dict(doc,
-                                            annotations)  # Cria um exemplo de treinamento a partir do documento e das anotações
+                example = Example.from_dict(doc, annotations)  # Cria um exemplo de treinamento a partir do documento e das anotações
                 # Atualiza o modelo com os exemplos de treinamento
                 nlp.update([example], drop=0.5, losses=losses)
         # Registra as perdas a cada iteração
