@@ -87,7 +87,7 @@ def process_text():
         data = ingredientes.find()
         # Encontra o melhor candidato de ingrediente
         ingrediente_encontrado = encontrar_ingrediente(data, nome_ingrediente)
-        if ingrediente_encontrado:
+        if ingrediente_encontrado != "NONE":
             # Converte ObjectId para string e adiciona o nome do ingrediente
             ingrediente_encontrado['_id'] = str(ingrediente_encontrado['_id'])
             ingrediente_encontrado['nome_ingrediente'] = nome_ingrediente
