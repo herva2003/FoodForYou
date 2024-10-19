@@ -12,11 +12,59 @@ app = Flask(__name__)
 # nos endpoints especificados, possibilitando a comunicação entre diferentes domínios
 CORS(app, resources={r"/process_text": {"origins": "*"}})
 CORS(app, resources={r"/send_quantities": {"origins": "*"}})
+CORS(app, resources={r"/process_ingredients": {"origins": "*"}})
 
 # Carregamento do modelo treinado de reconhecimento de entidades nomeadas (NER) do spaCy
 model_path = '../models/ingredient_ner'
 nlp = spacy.load(model_path)
 
+@app.route('/process_ingredients', methods=['POST'])
+def process_ingredients():
+    """
+    Endpoint para processar ingredientes e quantidades enviados via POST e calcular valores nutricionais.
+    """
+    ingredients_data = request.get_json()
+    print('Received ingredients data:', ingredients_data)
+
+    def calcular_valores_nutricionais(ingredients_data):
+        """
+        Função para calcular os valores nutricionais totais com base nas quantidades recebidas.
+
+        Args:
+        ingredients_data (list): Lista de dicionários contendo '_id' do ingrediente e 'quantity' a ser calculada.
+
+        Returns:
+        dict: Dicionário contendo os valores nutricionais totais calculados.
+        """
+        valores_nutricionais_totais = {}
+
+        for item in ingredients_data:
+            _id = item['_id']
+            quantidade = item['quantity']
+
+            # Busca os detalhes do ingrediente no MongoDB usando o _id
+            ingrediente_detalhes = ingredientes.find_one({'_id': ObjectId(_id)})
+            print(ingrediente_detalhes)
+
+            if ingrediente_detalhes:
+                # Calcula os valores nutricionais proporcionais com base na quantidade
+                for chave, valor in ingrediente_detalhes.items():
+                    if chave not in ['_id', 'NDB_No', 'Descrip']:
+                        valor_nutricional = (valor / 100) * quantidade
+
+                        if chave in valores_nutricionais_totais:
+                            valores_nutricionais_totais[chave] += valor_nutricional
+                        else:
+                            valores_nutricionais_totais[chave] = valor_nutricional
+            print(valores_nutricionais_totais)
+
+        return valores_nutricionais_totais
+
+    # Calcula os valores nutricionais totais com base nas quantidades recebidas
+    valores_nutricionais = calcular_valores_nutricionais(ingredients_data)
+
+    # Retorna os valores nutricionais totais em formato JSON
+    return jsonify({'nutritional_values': valores_nutricionais})
 
 @app.route('/process_text', methods=['POST'])
 def process_text():
