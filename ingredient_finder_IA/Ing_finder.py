@@ -82,10 +82,10 @@ def prepare_data(df):
     TRAIN_DATA = []
     for index, row in df.iterrows():
         entities = []
-        ingredients_text = row['ingredients'].lower()  # Converte o texto dos ingredientes para minúsculas
+        ingredients_text = row['directions'].lower()  # Converte o texto das direções para minúsculas
         for ing in ast.literal_eval(row['NER']):
             ing_lower = ing.lower()  # Converte o nome do ingrediente para minúsculas
-            # Encontra todas as ocorrências da entidade no texto dos ingredientes
+            # Encontra todas as ocorrências da entidade no texto das direções
             start_index = ingredients_text.find(ing_lower)
             while start_index != -1:  # Continua encontrando enquanto houverem ocorrências
                 end_index = start_index + len(ing_lower)
@@ -93,8 +93,8 @@ def prepare_data(df):
                 start_index = ingredients_text.find(ing_lower, start_index + 1)  # Procura a próxima ocorrência
         # Remove entidades sobrepostas para evitar conflitos
         entities = remove_overlapping_entities(entities)
-        # Adiciona o texto dos ingredientes e suas entidades ao conjunto de dados de treinamento
-        TRAIN_DATA.append((row['ingredients'], {'entities': entities}))
+        # Adiciona o texto das direções e suas entidades ao conjunto de dados de treinamento
+        TRAIN_DATA.append((row['directions'], {'entities': entities}))
 
     # Filtra entidades desalinhadas para garantir a qualidade dos dados de treinamento
     TRAIN_DATA = [data for data in TRAIN_DATA if not misaligned_entities(data, nlp)]
@@ -136,7 +136,7 @@ def misaligned_entities(data, nlp):
 Exemplo de remoção: 
 
 Em misaligned: [(15, 16, 'INGREDIENT')] - para o ingrediente maçã
-Aqui, a entidade está é removida pois o intervalo (15, 16) não cobre todo o nome "maçã", apenas a letra "m".
+Aqui, a entidade é removida pois o intervalo (15, 16) não cobre todo o nome "maçã", apenas a letra "m".
 '''
 
 
