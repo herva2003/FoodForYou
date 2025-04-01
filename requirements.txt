@@ -1,0 +1,6 @@
+pandas
+flask-cors
+flask
+fuzzywuzzy
+pymongo
+python-Levenshtein

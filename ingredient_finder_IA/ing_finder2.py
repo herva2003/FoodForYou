@@ -1,4 +1,3 @@
-from mongoDB.MongoDb import ingredientes
 import re
 import ast
 import pandas as pd
@@ -7,6 +6,14 @@ from flask_cors import CORS
 from bson import ObjectId
 from fuzzywuzzy import fuzz
 import logging
+from pymongo import MongoClient
+import json
+
+client_mongo = MongoClient('mongodb+srv://gvghervatin:123456qwerty@cluster0.b4m0rm3.mongodb.net/')
+
+db = client_mongo['PI5']
+users = db['users']
+ingredientes = db['ingredientes']
 
 # Configuração do logging
 logging.basicConfig(level=logging.INFO)
@@ -31,8 +38,8 @@ def carregar_ingredientes(csv_path):
         logging.error('File ner.csv not found.')
         return []
 
-ingredientes_list = carregar_ingredientes('../ner.csv')
-
+ingredientes_list = carregar_ingredientes('/app/ingredient_finder_IA/ner.csv')
+    
 @app.route('/process_ingredients', methods=['POST'])
 def process_ingredients():
     """
@@ -88,7 +95,13 @@ def process_text():
     """
 
     # Recebe o texto a ser processado da requisição HTTP
-    text_to_process = request.data.decode('utf-8')
+    raw_data = request.data.decode('utf-8')
+    
+    # Parse the raw JSON string to a dictionary
+    data_dict = json.loads(raw_data)
+    
+    # Extract the actual text to process
+    text_to_process = data_dict.get("text_to_process", "")
 
     # Remove caracteres especiais e números do texto
     text_to_process = re.sub(r'[^a-zA-Z\s]', '', text_to_process).lower()
@@ -250,4 +263,4 @@ def send_quantities():
 
 if __name__ == '__main__':
     # Inicia a aplicação Flask
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
